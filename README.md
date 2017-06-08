@@ -1,4 +1,4 @@
-# JSON-RPC Client and Server
+# JSON-RPC Client and Server [![Build Status](https://travis-ci.org/Papierkorb/json_rpc.svg?branch=master)](https://travis-ci.org/Papierkorb/json_rpc)
 
 Use and provide services using JSON-RPC!
 
@@ -79,3 +79,7 @@ dependencies:
 ## Contributors
 
 - [Papierkorb](https://github.com/Papierkorb) Stefan Merettig - creator, maintainer
+
+## Have a nice day!
+
+*Connect all the things*
