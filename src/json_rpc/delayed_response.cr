@@ -1,4 +1,8 @@
 module JsonRpc
+  # Like `Response`, but delayed in that you can send a response to a request
+  # some time after your `Handler#handle_rpc_call` has returned.
+  #
+  # See `Request#respond_later`
   class DelayedResponse
     # The invocation id to respond to
     getter id : IdType

@@ -41,6 +41,9 @@ module JsonRpc
     end
 
     # Returns a `DelayedResponse`, bound to *client*.
+    #
+    # Return the result of this method from your `Handler#handle_rpc_call`, and
+    # keep a handle to it somewhere to respond later.
     def respond_later(client : Client) : DelayedResponse
       DelayedResponse.new(@id, client)
     end
