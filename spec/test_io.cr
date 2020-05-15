@@ -1,5 +1,4 @@
-class TestIo
-  include IO
+class TestIo < IO
 
   getter sent = [] of String
 
@@ -26,7 +25,7 @@ class TestIo
     count
   end
 
-  def write(buffer : Bytes)
+  def write(buffer : Bytes) : Nil
     @sent << String.new(buffer)
     nil
   end

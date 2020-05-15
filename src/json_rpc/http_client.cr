@@ -43,7 +43,7 @@ module JsonRpc
       @buffer.delete id
     end
 
-    def remote_address
+    def remote_address : String
       "#{@http_client.host}:#{@http_client.port}#{@endpoint}"
     end
 

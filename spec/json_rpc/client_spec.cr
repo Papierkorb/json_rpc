@@ -46,16 +46,18 @@ describe JsonRpc::Client do
       result = nil
 
       io, subject = create_client
+      ch = Channel(Nil).new
 
       spawn do
         result = subject.call JsonRpc::Response(String), "foo", "bar"
+        ch.send nil
       end
 
       Fiber.yield
 
       io.sent.should eq [ JsonRpc::Request(String).new(1i64, "foo", "bar").to_json, "\n" ]
       subject.process_document %<{ "id": 1, "result": "Okay" }>
-
+      ch.receive
       result.should eq "Okay"
     end
 
@@ -64,18 +66,19 @@ describe JsonRpc::Client do
       error = nil
 
       io, subject = create_client
-
+      ch = Channel(Nil).new
       spawn do
         begin
           result = subject.call JsonRpc::Response(String), "foo", "bar"
         rescue e : JsonRpc::RemoteCallError
           error = e
         end
+        ch.send nil
       end
 
       Fiber.yield
       subject.process_document %<{ "id": 1, "error": [ 123, "Oh noes" ] }>
-
+      ch.receive
       result.should eq nil
       my_error = error
       my_error.should_not eq nil
@@ -150,7 +153,7 @@ describe JsonRpc::Client do
         raise "Crystal bug" if my_request.nil?
 
         my_request.method.should eq "foo"
-        my_request.params.should eq JSON::Any.new([ 123i64.as(JSON::Type) ])
+        my_request.params.should eq JSON::Any.new([ JSON::Any.new(123i64) ])
         my_request.id.should eq nil
 
         io.sent.size.should eq 0
@@ -181,7 +184,7 @@ describe JsonRpc::Client do
         raise "Crystal bug" if my_request.nil?
 
         my_request.method.should eq "foo"
-        my_request.params.should eq JSON::Any.new([ 123i64.as(JSON::Type) ])
+        my_request.params.should eq JSON::Any.new([ JSON::Any.new(123i64) ])
         my_request.id.should eq 1i64
 
         io.sent.should eq [ JsonRpc::Response(String).new(1i64, "Okay!", nil).to_json, "\n" ]
@@ -202,13 +205,13 @@ describe JsonRpc::Client do
       it "calls the handler and sends an error" do
         io, client = create_client
         client.handler = ProcHandler.new do |klient, req, raw_data|
-          raise JsonRpc::LocalCallError.new("Private", 123, "Public", 456i64.as(JSON::Type))
+          raise JsonRpc::LocalCallError.new("Private", 123, "Public", 456i64)
         end
 
         request_str = %<{ "id": 1, "method": "foo", "params": [123] }>
         client.process_document request_str
 
-        io.sent.should eq [ JsonRpc::Response(Nil).new(1i64, nil, JSON::Any.new [ 123i64, "Public", 456i64 ] of JSON::Type).to_json, "\n" ]
+        io.sent.should eq [ JsonRpc::Response(Nil).new(1i64, nil, JSON::Any.new [ JSON::Any.new(123i64), JSON::Any.new("Public"), JSON::Any.new(456i64) ]).to_json, "\n" ]
       end
 
       it "handles a DelayedResponse" do
