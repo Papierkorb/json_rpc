@@ -1,6 +1,6 @@
 name: json_rpc
 description: A JSON-RPC client and server library
-version: 0.1.0
+version: 0.1.1
 
 authors:
   - Stefan Merettig <stefan-merettig@nuriaproject.org>
@@ -9,6 +9,6 @@ dependencies:
   cute:
     github: Papierkorb/cute
 
-crystal: 0.22.0
+crystal: 0.34.0
 
 license: MIT
