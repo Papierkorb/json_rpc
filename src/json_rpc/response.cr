@@ -1,59 +1,29 @@
-module JsonRpc
-  # Encapsulates a JSON-RPC invocation response.  See `Request#respond` to
-  # create a response conveniently.
-  #
-  # If you're looking to receive a response with no result, see `EmptyResponse`.
-  class Response(T)
-    JSON.mapping({
-      jsonrpc: {
-        type:    String,
-        default: "2.0",
-        nilable: true, # Would not be standard conform, but oh well
-      },
-      id: {
-        type:      IdType,
-        nilable:   true,
-        emit_null: true,
-      },
-      result: {
-        type:      T,
-        nilable:   true,
-        emit_null: false,
-      },
-      error: {
-        type:      JSON::Any,
-        nilable:   true,
-        emit_null: false,
-      },
-    })
+require "json"
 
-    def initialize(@id, @result, @error)
-      @jsonrpc = "2.0"
+require "./message_header"
+
+module JsonRpc
+  private abstract struct ResponseBase(T)
+    include JSON::Serializable
+    include MessageHeader
+
+    getter error : JSON::Any?
+
+    def initialize(@id, @error)
     end
   end
 
-  # Encapsulates an *empty* JSON-RPC invocation response.
-  class EmptyResponse
-    JSON.mapping({
-      jsonrpc: {
-        type:    String,
-        default: "2.0",
-        nilable: true, # Would not be standard conform, but oh well
-      },
-      id: {
-        type:      IdType,
-        nilable:   true,
-        emit_null: true,
-      },
-      error: {
-        type:      JSON::Any,
-        nilable:   true,
-        emit_null: false,
-      },
-    })
+  # Encapsulates a JSON-RPC invocation response.  See `Request#respond` to
+  # create a response conveniently.
+  struct Response(T) < ResponseBase(T)
+    getter result : T?
 
-    def initialize(@id, @error = nil)
-      @jsonrpc = "2.0"
+    def initialize(@id, @result, @error)
+      super(@id, @error)
     end
+  end
+
+  # `JsonRpc::Response(T)` with no `result` key
+  struct EmptyResponse < ResponseBase(Nil)
   end
 end
