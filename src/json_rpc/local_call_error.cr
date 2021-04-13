@@ -33,9 +33,9 @@ module JsonRpc
 
     def self.error_object(code : Int32, public_message : String, data = nil)
       if data.nil?
-        ary = [ JSON::Any.new(code.to_i64), JSON::Any.new(public_message) ]
+        ary = [JSON::Any.new(code.to_i64), JSON::Any.new(public_message)]
       else
-        ary = [ JSON::Any.new(code.to_i64), JSON::Any.new(public_message), JSON::Any.new(data) ]
+        ary = [JSON::Any.new(code.to_i64), JSON::Any.new(public_message), JSON::Any.new(data)]
       end
 
       JSON::Any.new(ary)

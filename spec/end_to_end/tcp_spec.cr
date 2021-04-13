@@ -16,29 +16,27 @@ describe "TCP end-to-end test" do
       tcp_server.close
 
       client = JsonRpc::TcpClient.new(tcp_socket)
-      client.handler = ProcHandler.new do |client, request, raw|
+      client.handler = ProcHandler.new do |_klient, _request, raw|
         client_to_server = raw
-        raw
       end
 
-      server_response = client.call(JsonRpc::Response(String), "S2C", [ "Hola" ])
+      server_response = client.call(JsonRpc::Response(String), "S2C", ["Hola"])
       waiter.send nil
     end
 
     spawn do # Client
       tcp_socket = TCPSocket.new("localhost", TCP_PORT)
       client = JsonRpc::TcpClient.new(tcp_socket)
-      client.handler = ProcHandler.new do |client, request, raw|
+      client.handler = ProcHandler.new do |_klient, _request, raw|
         server_to_client = raw
-        raw
       end
 
-      client_response = client.call(JsonRpc::Response(String), "C2S", [ "Hola" ])
+      client_response = client.call(JsonRpc::Response(String), "C2S", ["Hola"])
       waiter.send nil
     end
 
     # Wait ...
-    2.times{ waiter.receive }
+    2.times { waiter.receive }
 
     client_to_server.should_not eq nil
     server_to_client.should_not eq nil

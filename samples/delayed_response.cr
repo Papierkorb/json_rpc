@@ -28,8 +28,8 @@ class MyHandler
     case request.method
     when "ping"
       delayed = request.respond_later client # Respond later...
-      run_intense_computation delayed # Do some asynchronous work
-      delayed # Signal that we will respond later!
+      run_intense_computation delayed        # Do some asynchronous work
+      delayed                                # Signal that we will respond later!
     else
       super
     end

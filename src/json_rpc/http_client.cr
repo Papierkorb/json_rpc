@@ -7,12 +7,12 @@ module JsonRpc
   # To do authentication, configure the `HTTP::Client` you pass in as needed.
   #
   # An example for HTTP Basic auth:
-  # ```crystal
-  #   http_client = HTTP::Client.new("some.internal.server", 1234)
-  #   http_client.basic_auth("my-username", "the-password")
+  # ```
+  # http_client = HTTP::Client.new("some.internal.server", 1234)
+  # http_client.basic_auth("my-username", "the-password")
   #
-  #   rpc_client = JsonRpc::HttpClient.new(http_client)
-  #   # rpc_client will now use basic authentication for each request!
+  # rpc_client = JsonRpc::HttpClient.new(http_client)
+  # # rpc_client will now use basic authentication for each request!
   # ```
   class HttpClient < Client
     getter http_client : HTTP::Client

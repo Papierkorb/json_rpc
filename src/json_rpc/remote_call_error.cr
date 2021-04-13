@@ -14,8 +14,8 @@ module JsonRpc
       if ary = @object.as_a?
         (
           ary.size >= 2 &&
-          ary[0].raw.is_a?(Int64) &&
-          ary[1].raw.is_a?(String)
+            ary[0].raw.is_a?(Int64) &&
+            ary[1].raw.is_a?(String)
         )
       else
         false

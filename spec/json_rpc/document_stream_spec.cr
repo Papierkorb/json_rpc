@@ -74,7 +74,7 @@ describe JsonRpc::DocumentStream do
     end
 
     it "reads multiple documents in same chunk" do
-      io = TestIo.new([ %<{"foo":"bar"}{"one": 2}> ])
+      io = TestIo.new([%<{"foo":"bar"}{"one": 2}>])
       stream = JsonRpc::DocumentStream.new(io)
 
       stream.read_document.should eq %<{"foo":"bar"}>
@@ -90,7 +90,7 @@ describe JsonRpc::DocumentStream do
     end
 
     it "raises if device was closed before document" do
-      io = TestIo.new([ ] of Bytes)
+      io = TestIo.new([] of Bytes)
       stream = JsonRpc::DocumentStream.new(io)
 
       expect_raises(JsonRpc::DocumentStream::DeviceClosedError) do
@@ -99,7 +99,7 @@ describe JsonRpc::DocumentStream do
     end
 
     it "raises if device was closed mid-document" do
-      io = TestIo.new([ %<{ "foo": "ba> ])
+      io = TestIo.new([%<{ "foo": "ba>])
       stream = JsonRpc::DocumentStream.new(io)
 
       expect_raises(JsonRpc::DocumentStream::DeviceClosedError) do

@@ -1,11 +1,11 @@
 require "../spec_helper"
 
 private def create_client
-  io = TestIo.new([ ] of Bytes)
+  io = TestIo.new([] of Bytes)
   streamer = JsonRpc::DocumentStream.new(io)
   client = JsonRpc::StreamClient.new(streamer, "TEST", run: false)
 
-  { io, client }
+  {io, client}
 end
 
 describe JsonRpc::Client do
@@ -18,7 +18,7 @@ describe JsonRpc::Client do
       end
 
       Fiber.yield
-      io.sent.should eq [ JsonRpc::Request(String).new(1i64, "foo", "bar").to_json, "\n" ]
+      io.sent.should eq [JsonRpc::Request(String).new(1i64, "foo", "bar").to_json, "\n"]
       subject.process_document %<{ "id": 1, "result": "bar" }>
     end
 
@@ -55,7 +55,7 @@ describe JsonRpc::Client do
 
       Fiber.yield
 
-      io.sent.should eq [ JsonRpc::Request(String).new(1i64, "foo", "bar").to_json, "\n" ]
+      io.sent.should eq [JsonRpc::Request(String).new(1i64, "foo", "bar").to_json, "\n"]
       subject.process_document %<{ "id": 1, "result": "Okay" }>
       ch.receive
       result.should eq "Okay"
@@ -65,7 +65,7 @@ describe JsonRpc::Client do
       result = nil
       error = nil
 
-      io, subject = create_client
+      _io, subject = create_client
       ch = Channel(Nil).new
       spawn do
         begin
@@ -92,7 +92,7 @@ describe JsonRpc::Client do
 
   describe "#close" do
     it "emits connection_lost" do
-      io, subject = create_client
+      _io, subject = create_client
 
       conn_lost = Cute.spy subject, connection_lost()
       subject.close
@@ -101,7 +101,7 @@ describe JsonRpc::Client do
     end
 
     it "doesn't double-close" do
-      io, subject = create_client
+      _io, subject = create_client
 
       conn_lost = Cute.spy subject, connection_lost()
       subject.close
@@ -116,7 +116,7 @@ describe JsonRpc::Client do
       io, subject = create_client
 
       subject.notify "foo", "bar"
-      io.sent.should eq [ JsonRpc::Request(String).new(nil, "foo", "bar").to_json, "\n" ]
+      io.sent.should eq [JsonRpc::Request(String).new(nil, "foo", "bar").to_json, "\n"]
     end
   end
 
@@ -124,7 +124,7 @@ describe JsonRpc::Client do
     it "sends the message in verbatim" do
       io, subject = create_client
       subject.notify_raw "Whazzup?!"
-      io.sent.should eq [ "Whazzup?!", "\n" ]
+      io.sent.should eq ["Whazzup?!", "\n"]
     end
   end
 
@@ -153,7 +153,7 @@ describe JsonRpc::Client do
         raise "Crystal bug" if my_request.nil?
 
         my_request.method.should eq "foo"
-        my_request.params.should eq JSON::Any.new([ JSON::Any.new(123i64) ])
+        my_request.params.should eq JSON::Any.new([JSON::Any.new(123i64)])
         my_request.id.should eq nil
 
         io.sent.size.should eq 0
@@ -184,41 +184,41 @@ describe JsonRpc::Client do
         raise "Crystal bug" if my_request.nil?
 
         my_request.method.should eq "foo"
-        my_request.params.should eq JSON::Any.new([ JSON::Any.new(123i64) ])
+        my_request.params.should eq JSON::Any.new([JSON::Any.new(123i64)])
         my_request.id.should eq 1i64
 
-        io.sent.should eq [ JsonRpc::Response(String).new(1i64, "Okay!", nil).to_json, "\n" ]
+        io.sent.should eq [JsonRpc::Response(String).new(1i64, "Okay!", nil).to_json, "\n"]
       end
 
       it "calls the handler and sends the custom result" do
         io, client = create_client
-        client.handler = ProcHandler.new do |klient, req, raw_data|
+        client.handler = ProcHandler.new do |_klient, _req, _raw_data|
           JsonRpc::Response(String).new(1i64, "Okay!", nil)
         end
 
         request_str = %<{ "id": 1, "method": "foo", "params": [123] }>
         client.process_document request_str
 
-        io.sent.should eq [ JsonRpc::Response(String).new(1i64, "Okay!", nil).to_json, "\n" ]
+        io.sent.should eq [JsonRpc::Response(String).new(1i64, "Okay!", nil).to_json, "\n"]
       end
 
       it "calls the handler and sends an error" do
         io, client = create_client
-        client.handler = ProcHandler.new do |klient, req, raw_data|
+        client.handler = ProcHandler.new do |_klient, _req, _raw_data|
           raise JsonRpc::LocalCallError.new("Private", 123, "Public", 456i64)
         end
 
         request_str = %<{ "id": 1, "method": "foo", "params": [123] }>
         client.process_document request_str
 
-        io.sent.should eq [ JsonRpc::Response(Nil).new(1i64, nil, JSON::Any.new [ JSON::Any.new(123i64), JSON::Any.new("Public"), JSON::Any.new(456i64) ]).to_json, "\n" ]
+        io.sent.should eq [JsonRpc::Response(Nil).new(1i64, nil, JSON::Any.new [JSON::Any.new(123i64), JSON::Any.new("Public"), JSON::Any.new(456i64)]).to_json, "\n"]
       end
 
       it "handles a DelayedResponse" do
         io, client = create_client
         waiter = Channel(Nil).new
 
-        client.handler = ProcHandler.new do |klient, req, raw_data|
+        client.handler = ProcHandler.new do |klient, req, _raw_data|
           delayed = req.respond_later(klient)
 
           spawn do
@@ -235,7 +235,7 @@ describe JsonRpc::Client do
         io.sent.empty?.should eq true
         waiter.send nil
 
-        io.sent.should eq [ JsonRpc::Response(String).new(1i64, "Okay!", nil).to_json, "\n" ]
+        io.sent.should eq [JsonRpc::Response(String).new(1i64, "Okay!", nil).to_json, "\n"]
       end
     end
   end
@@ -246,7 +246,7 @@ describe JsonRpc::Client do
       flood_spy = Cute.spy subject, flood_protection_triggered()
 
       subject.flood_messages = 9
-      10.times{ subject.process_document %<{ "id": null, "method": "foo", "params": [] }> }
+      10.times { subject.process_document %<{ "id": null, "method": "foo", "params": [] }> }
       flood_spy.size.should eq 1
     end
 
@@ -255,7 +255,7 @@ describe JsonRpc::Client do
       flood_spy = Cute.spy subject, flood_protection_triggered()
 
       subject.flood_messages = 9
-      9.times{ subject.process_document %<{ "id": null, "method": "foo", "params": [] }> }
+      9.times { subject.process_document %<{ "id": null, "method": "foo", "params": [] }> }
       flood_spy.size.should eq 0
     end
   end

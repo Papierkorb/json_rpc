@@ -6,23 +6,23 @@ module JsonRpc
   class Response(T)
     JSON.mapping({
       jsonrpc: {
-        type: String,
+        type:    String,
         default: "2.0",
         nilable: true, # Would not be standard conform, but oh well
       },
       id: {
-        type: IdType,
-        nilable: true,
+        type:      IdType,
+        nilable:   true,
         emit_null: true,
       },
       result: {
-        type: T,
-        nilable: true,
+        type:      T,
+        nilable:   true,
         emit_null: false,
       },
       error: {
-        type: JSON::Any,
-        nilable: true,
+        type:      JSON::Any,
+        nilable:   true,
         emit_null: false,
       },
     })
@@ -36,18 +36,18 @@ module JsonRpc
   class EmptyResponse
     JSON.mapping({
       jsonrpc: {
-        type: String,
+        type:    String,
         default: "2.0",
         nilable: true, # Would not be standard conform, but oh well
       },
       id: {
-        type: IdType,
-        nilable: true,
+        type:      IdType,
+        nilable:   true,
         emit_null: true,
       },
       error: {
-        type: JSON::Any,
-        nilable: true,
+        type:      JSON::Any,
+        nilable:   true,
         emit_null: false,
       },
     })

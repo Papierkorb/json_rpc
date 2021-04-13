@@ -62,7 +62,7 @@ class ChatServer
   def run
     puts "Now accepting connections!"
 
-    while socket = @server.accept? # Accept connections ...
+    while socket = @server.accept?   # Accept connections ...
       client = ChatClient.new socket # And register each new client
       puts "New connection from #{client.remote_address}"
 
@@ -77,7 +77,7 @@ class ChatServer
   def broadcast_message(message)
     # First, construct the notification.  Set the id to `nil`!
     json_data = JsonRpc::Request(String).new(nil, "message", message).to_json
-    @clients.each{|client| client.notify_raw json_data}
+    @clients.each &.notify_raw(json_data)
   end
 
   def setup_client_handlers(client)
@@ -110,7 +110,7 @@ else # Client mode
   end
 
   puts "Connected!"
-  while message = gets # Wait for user input
+  while message = gets               # Wait for user input
     client.notify "message", message # And send it off to the server
   end
 end

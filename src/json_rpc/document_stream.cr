@@ -24,10 +24,12 @@ module JsonRpc
     # Backing `IO` stream
     getter io : IO
 
+    @buffer_size : Int32 = 0
+
+    private getter buffer : Bytes { Bytes.new(BUFFER_SIZE) }
+
     # Constructs a reader with backing device *io*
     def initialize(@io : IO)
-      @buffer = Bytes.new(BUFFER_SIZE)
-      @buffer_size = 0
     end
 
     # Reads a single document from the stream.
@@ -38,16 +40,17 @@ module JsonRpc
     # Note: The result may not be valid JSON.  The algorithm only tries to find
     # the end of a valid JSON document: If it's not valid, the result may be
     # neither.
+    #
+    # ameba:disable Metrics/CyclomaticComplexity
     def read_document(max_size : Int = DEFAULT_MAX_SIZE) : String
       String.build do |builder|
-        buffer = @buffer  # Quick access to @buffer
         braces = 0        # Track brace "depth"
         in_string = false # Are we in a string?
         doc_size = 0      # Track document size
         accept = false    # If the document was read completely
         next_offset = 0
 
-        while accept == false
+        while !accept
           fill_buffer if @buffer_size < 1
 
           offset = 0
@@ -55,22 +58,22 @@ module JsonRpc
           next_offset = 0
 
           while pos < @buffer_size
-            case buffer[pos]
+            case buffer[pos].ord
             # Count brace.  Doesn't differentiate between curly and square ones.
-            when '{'.ord, '['.ord
+            when '{', '['
               braces += 1 unless in_string
-            when '}'.ord, ']'.ord
+            when '}', ']'
               braces -= 1 unless in_string
 
               # Happens if the document reads akin to "some garbage }"
               raise DocumentMalformed.new("Closing brace without opening") if braces < 0
 
-              if braces == 0
+              if braces.zero?
                 accept = true
                 pos += 1
                 break
               end
-            when '\\'.ord # When in string, skip on backslash.
+            when '\\' # When in string, skip on backslash.
               if in_string
                 if pos + 1 >= @buffer_size
                   next_offset = 1 # Skip first byte in next chunk
@@ -78,12 +81,12 @@ module JsonRpc
                   pos += 1 # Skip next byte in this chunk
                 end
               end
-            when '"'.ord # Don't count braces in strings!
+            when '"' # Don't count braces in strings!
               in_string = !in_string
             when ' ', '\r', '\n', '\t', '\v'
-              offset += 1 if braces == 0 # Ignore whitespace
+              offset += 1 if braces.zero? # Ignore whitespace
             else
-              raise DocumentMalformed.new("Leading garbage bytes") if braces == 0
+              raise DocumentMalformed.new("Leading garbage bytes") if braces.zero?
             end
 
             pos += 1
@@ -91,10 +94,10 @@ module JsonRpc
 
           count = pos - offset
           doc_size += count # Document size attack check
-          raise DocumentTooLarge.new("Max size of #{max_size} exceeded") if max_size && doc_size > max_size
+          raise DocumentTooLarge.new("Max size of #{max_size} exceeded") if doc_size > max_size
 
           builder.write buffer[offset, count] # Keep this part
-          buffer.move_from(buffer + pos) # And remove it from the buffer
+          buffer.move_from(buffer + pos)      # And remove it from the buffer
           @buffer_size -= pos
         end
       end
@@ -102,15 +105,15 @@ module JsonRpc
 
     # Sends *document*, making sure a new-line is followed by it.
     def send_document(document : String)
-      @io.puts document
+      io.puts document
     end
 
     # Reads data from the backing IO to fill the read buffer.
     private def fill_buffer
-      buf = @buffer + @buffer_size
+      buf = buffer + @buffer_size
       return 0 if buf.size == 0 # Is the buffer already full?
 
-      count = @io.read(buf)
+      count = io.read(buf)
       raise DeviceClosedError.new("Backing IO was closed") if count < 1
 
       @buffer_size += count

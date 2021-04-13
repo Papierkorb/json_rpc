@@ -14,11 +14,11 @@ class MyHandler
   def handle_rpc_call(client : JsonRpc::Client, request : JsonRpc::Request(JSON::Any), raw : String)
     puts "Request from #{client.inspect} to #{request.method.inspect} using #{request.params.inspect}"
 
-    case request.method # Handle it
-    when "ping" # Implement a ping method ..
+    case request.method        # Handle it
+    when "ping"                # Implement a ping method ..
       request.respond("Pong!") # .. which responds with a pong
-    else # Unknown method?
-      super # Respond with unknown method error
+    else                       # Unknown method?
+      super                    # Respond with unknown method error
     end
   end
 end

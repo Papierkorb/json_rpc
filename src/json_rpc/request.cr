@@ -3,22 +3,22 @@ module JsonRpc
   class Request(T)
     JSON.mapping({
       jsonrpc: {
-        type: String,
+        type:    String,
         default: "2.0",
         nilable: true, # Would not be standard conform, but oh well
       },
       id: {
-        type: IdType,
-        nilable: true,
+        type:      IdType,
+        nilable:   true,
         emit_null: true,
       },
       method: {
         type: String,
       },
       params: {
-        type: T,
+        type:    T,
         nilable: true,
-      }
+      },
     })
 
     def initialize(@id, @method, @params)

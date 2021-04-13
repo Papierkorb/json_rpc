@@ -34,7 +34,7 @@ module JsonRpc
     #
     # If you did not do anything fancy, don't call this method.
     def run
-      spawn{ read_loop }
+      spawn { read_loop }
     end
 
     # Interface for `Client`

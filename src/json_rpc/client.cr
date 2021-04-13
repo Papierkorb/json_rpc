@@ -151,7 +151,7 @@ module JsonRpc
     # Called by `Client` implementations to invoke a local method.
     def invoke_from_remote(request : Request(JSON::Any), raw : String) : Nil
       if @async_call
-        spawn{ process_local_invocation request, raw }
+        spawn { process_local_invocation request, raw }
       else
         process_local_invocation request, raw
       end
@@ -173,14 +173,12 @@ module JsonRpc
       result = @handler.handle_rpc_call(self, request, raw)
 
       case result
-      when Response then result
+      when Response        then result
       when DelayedResponse then nil
-      else request.respond(result)
+      else                      request.respond(result)
       end
-
     rescue err : LocalCallError
       request.respond(err)
-
     rescue err
       fatal_local_error.emit request, raw, err
       request.respond(LocalCallError.new(-32603, "Internal Server Error"))

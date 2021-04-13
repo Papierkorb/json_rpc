@@ -4,11 +4,11 @@ module JsonRpc
   class Message
     JSON.mapping({
       id: {
-        type: IdType,
+        type:    IdType,
         nilable: true,
       },
       method: {
-        type: String,
+        type:    String,
         nilable: true,
       },
     })
