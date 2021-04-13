@@ -58,7 +58,7 @@ module JsonRpc
           next_offset = 0
 
           while pos < @buffer_size
-            case buffer[pos].ord
+            case buffer[pos].unsafe_chr
             # Count brace.  Doesn't differentiate between curly and square ones.
             when '{', '['
               braces += 1 unless in_string
