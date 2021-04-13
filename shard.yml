@@ -6,6 +6,7 @@ license: MIT
 
 authors:
   - Stefan Merettig <stefan-merettig@nuriaproject.org>
+  - Caspian Baska <caspianbaska@gmail.com>
 
 dependencies:
   cute:
