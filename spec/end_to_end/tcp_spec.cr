@@ -20,7 +20,7 @@ describe "TCP end-to-end test" do
         client_to_server = raw
       end
 
-      server_response = client.call(JsonRpc::Response(String), "S2C", ["Hola"])
+      server_response = client.call(String, "S2C", ["Hola"])
       waiter.send nil
     end
 
@@ -31,7 +31,7 @@ describe "TCP end-to-end test" do
         server_to_client = raw
       end
 
-      client_response = client.call(JsonRpc::Response(String), "C2S", ["Hola"])
+      client_response = client.call(String, "C2S", ["Hola"])
       waiter.send nil
     end
 

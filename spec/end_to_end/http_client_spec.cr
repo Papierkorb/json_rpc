@@ -25,7 +25,7 @@ describe "HTTP client end-to-end test" do
       http_client = HTTP::Client.new("localhost", HTTP_PORT)
 
       client = JsonRpc::HttpClient.new(http_client)
-      client_response = client.call(JsonRpc::Response(String), "C2S", ["Konnichiwa"])
+      client_response = client.call(String, "C2S", ["Konnichiwa"])
       waiter.send nil
     end
 

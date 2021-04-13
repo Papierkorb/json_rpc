@@ -76,7 +76,7 @@ class ChatServer
   # in bulk to many clients.
   def broadcast_message(message)
     # First, construct the notification.  Set the id to `nil`!
-    json_data = JsonRpc::Request(String).new(nil, "message", message).to_json
+    json_data = JsonRpc::Request.new(nil, "message", message).to_json
     @clients.each &.notify_raw(json_data)
   end
 

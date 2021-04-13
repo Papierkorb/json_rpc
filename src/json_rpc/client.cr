@@ -87,9 +87,6 @@ module JsonRpc
 
     # Calls a remote *method* with optional *params*, returning a *result_type*.
     #
-    # Note: Right now, you have to pass `JsonRpc::Response(YourType)` for
-    # *result_type*, not just `YourType` !
-    #
     # ## Error behaviour
     #
     # On success the result of the invocation is returned.  If however the
@@ -109,23 +106,18 @@ module JsonRpc
     # `RemoteCallError` is **returned**. Otherwise, the **nilable** result is
     # returned.
     def call?(result_type, method : String, params = nil)
-      response = call_impl(result_type, method, params)
-
-      if err = response.error
-        RemoteCallError.new("Failed to call #{method}", err)
-      else
-        response.result
-      end
-    end
-
-    private def call_impl(result_type, method, params)
       request = Request(typeof(params)).new(next_id, method, params)
       _send_message(request.id, request.to_json)
 
       message_data = recv_message(request.id)
       raise Error.new("Failed to call #{method}") if message_data.nil?
 
-      result_type.from_json message_data
+      response = Response.from_json(message_data)
+      if err = response.error
+        RemoteCallError.new("Failed to call #{method}", err)
+      else
+        response.result.try { |raw| result_type.from_json(raw) }
+      end
     end
 
     # Handler which is called whenever a call is received from the

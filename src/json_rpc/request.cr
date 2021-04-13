@@ -17,17 +17,17 @@ module JsonRpc
 
     # Creates an error response.
     def respond(failure : LocalCallError)
-      Response(Nil).new(id, nil, failure.object)
+      Response.new(id, nil, failure.object)
     end
 
     # Creates an error response.
     def error(code : Int32, message : String, data : JSON::Any? = nil)
-      Response(Nil).new(id, nil, LocalCallError.error_object(code, public_message, data))
+      Response.new(id, nil, LocalCallError.error_object(code, public_message, data))
     end
 
     # Creates a successful response based on *result*.
     def respond(result)
-      Response(typeof(result)).new(id, result, nil)
+      Response.new(id, result, nil)
     end
 
     # Returns a `DelayedResponse`, bound to *client*.

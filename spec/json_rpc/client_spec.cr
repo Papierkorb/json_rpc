@@ -14,7 +14,7 @@ describe JsonRpc::Client do
       io, subject = create_client
 
       spawn do
-        subject.call JsonRpc::Response(String), "foo", "bar"
+        subject.call String, "foo", "bar"
       end
 
       Fiber.yield
@@ -26,13 +26,12 @@ describe JsonRpc::Client do
       io, subject = create_client
 
       spawn do
-        subject.call JsonRpc::Response(String), "foo", "bar"
-        subject.call JsonRpc::Response(String), "one", "two"
+        subject.call String, "foo", "bar"
+        subject.call String, "one", "two"
       end
 
       Fiber.yield
       subject.process_document %<{ "id": 1, "result": "bar" }>
-
       Fiber.yield
       subject.process_document %<{ "id": 2, "result": "tada" }>
 
@@ -49,7 +48,7 @@ describe JsonRpc::Client do
       ch = Channel(Nil).new
 
       spawn do
-        result = subject.call JsonRpc::Response(String), "foo", "bar"
+        result = subject.call String, "foo", "bar"
         ch.send nil
       end
 
@@ -69,7 +68,7 @@ describe JsonRpc::Client do
       ch = Channel(Nil).new
       spawn do
         begin
-          result = subject.call JsonRpc::Response(String), "foo", "bar"
+          result = subject.call String, "foo", "bar"
         rescue e : JsonRpc::RemoteCallError
           error = e
         end
@@ -187,19 +186,19 @@ describe JsonRpc::Client do
         my_request.params.should eq JSON::Any.new([JSON::Any.new(123i64)])
         my_request.id.should eq 1i64
 
-        io.sent.should eq [JsonRpc::Response(String).new(1i64, "Okay!", nil).to_json, "\n"]
+        io.sent.should eq [JsonRpc::Response.new(1i64, "Okay!", nil).to_json, "\n"]
       end
 
       it "calls the handler and sends the custom result" do
         io, client = create_client
         client.handler = ProcHandler.new do |_klient, _req, _raw_data|
-          JsonRpc::Response(String).new(1i64, "Okay!", nil)
+          JsonRpc::Response.new(1i64, "Okay!", nil)
         end
 
         request_str = %<{ "id": 1, "method": "foo", "params": [123] }>
         client.process_document request_str
 
-        io.sent.should eq [JsonRpc::Response(String).new(1i64, "Okay!", nil).to_json, "\n"]
+        io.sent.should eq [JsonRpc::Response.new(1i64, "Okay!", nil).to_json, "\n"]
       end
 
       it "calls the handler and sends an error" do
@@ -211,7 +210,7 @@ describe JsonRpc::Client do
         request_str = %<{ "id": 1, "method": "foo", "params": [123] }>
         client.process_document request_str
 
-        io.sent.should eq [JsonRpc::Response(Nil).new(1i64, nil, JSON::Any.new [JSON::Any.new(123i64), JSON::Any.new("Public"), JSON::Any.new(456i64)]).to_json, "\n"]
+        io.sent.should eq [JsonRpc::Response.new(1i64, nil, JSON::Any.new [JSON::Any.new(123i64), JSON::Any.new("Public"), JSON::Any.new(456i64)]).to_json, "\n"]
       end
 
       it "handles a DelayedResponse" do
@@ -235,7 +234,7 @@ describe JsonRpc::Client do
         io.sent.empty?.should eq true
         waiter.send nil
 
-        io.sent.should eq [JsonRpc::Response(String).new(1i64, "Okay!", nil).to_json, "\n"]
+        io.sent.should eq [JsonRpc::Response.new(1i64, "Okay!", nil).to_json, "\n"]
       end
     end
   end

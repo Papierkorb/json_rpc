@@ -38,7 +38,7 @@ http_client.basic_auth "rpc_user", "rpc_password"
 client = JsonRpc::HttpClient.new http_client
 
 # Check your balance!
-pp client.call(JsonRpc::Response(Float64), "getbalance")
+pp client.call(Float64, "getbalance")
 ```
 
 [Source](https://github.com/Papierkorb/json_rpc/tree/master/samples/http_client.cr)

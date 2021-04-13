@@ -1,3 +1,5 @@
+require "./message"
+
 module JsonRpc
   # Implements JSON-RPC over a persistant data stream.
   class StreamClient < Client
@@ -60,9 +62,7 @@ module JsonRpc
     # Processes *document* as if it was sent by the remote end.
     def process_document(document : String)
       return unless count_incoming_message
-      msg = Message.from_json document
-
-      if msg.response?
+      if Message.from_json(document).response?
         process_response(document)
       else
         process_request(document)

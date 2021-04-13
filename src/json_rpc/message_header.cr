@@ -1,5 +1,7 @@
+require "json"
+
 module JsonRpc
-  # Shared properties between `JsonRpc::Request(T)` and `JsonRpc::Response(T)`
+  # Shared properties between `JsonRpc::Request` and `JsonRpc::Response`
   module MessageHeader
     # Would not be standard conform, but oh well
     getter jsonrpc : String? = "2.0"
