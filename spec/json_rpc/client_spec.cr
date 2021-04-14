@@ -18,7 +18,7 @@ describe JsonRpc::Client do
       end
 
       Fiber.yield
-      io.sent.should eq [JsonRpc::Request(String).new(1i64, "foo", "bar").to_json, "\n"]
+      io.sent.should eq [JsonRpc::Request.new(1i64, "foo", "bar").to_json, "\n"]
       subject.process_document %<{ "id": 1, "result": "bar" }>
     end
 
@@ -36,8 +36,8 @@ describe JsonRpc::Client do
       subject.process_document %<{ "id": 2, "result": "tada" }>
 
       io.sent.should eq [
-        JsonRpc::Request(String).new(1i64, "foo", "bar").to_json, "\n",
-        JsonRpc::Request(String).new(2i64, "one", "two").to_json, "\n",
+        JsonRpc::Request.new(1i64, "foo", "bar").to_json, "\n",
+        JsonRpc::Request.new(2i64, "one", "two").to_json, "\n",
       ]
     end
 
@@ -54,7 +54,7 @@ describe JsonRpc::Client do
 
       Fiber.yield
 
-      io.sent.should eq [JsonRpc::Request(String).new(1i64, "foo", "bar").to_json, "\n"]
+      io.sent.should eq [JsonRpc::Request.new(1i64, "foo", "bar").to_json, "\n"]
       subject.process_document %<{ "id": 1, "result": "Okay" }>
       ch.receive
       result.should eq "Okay"
@@ -115,7 +115,7 @@ describe JsonRpc::Client do
       io, subject = create_client
 
       subject.notify "foo", "bar"
-      io.sent.should eq [JsonRpc::Request(String).new(nil, "foo", "bar").to_json, "\n"]
+      io.sent.should eq [JsonRpc::Request.new(nil, "foo", "bar").to_json, "\n"]
     end
   end
 

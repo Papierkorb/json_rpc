@@ -4,15 +4,20 @@ require "./message_header"
 
 module JsonRpc
   # Encapsulates a JSON-RPC request object
-  struct Request(T)
+  struct Request
     include JSON::Serializable
     include MessageHeader
 
     getter method : String
 
-    getter params : T?
+    @[JSON::Field(key: "params", converter: String::RawConverter)]
+    getter raw_params : String?
 
-    def initialize(@id, @method, @params)
+    @[JSON::Field(ignore: true)]
+    getter params : JSON::Any? { raw_params.try { |o| JSON.parse(o) } }
+
+    def initialize(@id, @method, params)
+      @raw_params = params.try &.to_json
     end
 
     # Creates an error response.

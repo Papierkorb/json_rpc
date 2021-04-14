@@ -31,7 +31,7 @@ describe JsonRpc::HttpClient do
       request = mock.requests.shift
       request.method.should eq "POST"
       request.path.should eq "/json-rpc"
-      request.body.try(&.gets_to_end).should eq JsonRpc::Request(String).new(1i64, "foo", nil).to_json
+      request.body.try(&.gets_to_end).should eq JsonRpc::Request.new(1i64, "foo", nil).to_json
     end
 
     context "on non-200 response code" do

@@ -12,7 +12,7 @@ describe "HTTP client end-to-end test" do
       raw = ctx.request.body.not_nil!.gets_to_end
       server_request = raw
 
-      req = JsonRpc::Request(Array(String)).from_json raw
+      req = JsonRpc::Request.from_json raw
       ctx.response.print req.respond(raw).to_json
     end
 

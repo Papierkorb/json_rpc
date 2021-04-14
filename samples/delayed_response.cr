@@ -22,8 +22,8 @@ class MyHandler
   end
 
   # Will be called for all incoming invocation requests
-  def handle_rpc_call(client : JsonRpc::Client, request : JsonRpc::Request(JSON::Any), raw : String)
-    puts "Request from #{client.inspect} to #{request.method.inspect} using #{request.params.inspect}"
+  def handle_rpc_call(client : JsonRpc::Client, request : JsonRpc::Request, raw : String)
+    puts "Request from #{client.inspect} to #{request.method} using #{request.params.inspect}"
 
     case request.method
     when "ping"

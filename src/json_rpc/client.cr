@@ -48,7 +48,7 @@ module JsonRpc
     # Emitted when the remote end has called a local method, but the handler
     # (Set through `#on_call`) raised an exception which is not a
     # `LocalCallError`.
-    Cute.signal fatal_local_error(request : Request(JSON::Any), raw : String, error : Exception)
+    Cute.signal fatal_local_error(request : Request, raw : String, error : Exception)
 
     # Emitted when the remote end sent something the implementation was not able
     # to handle.  Usually happens when receiving garbage.
@@ -106,7 +106,7 @@ module JsonRpc
     # `RemoteCallError` is **returned**. Otherwise, the **nilable** result is
     # returned.
     def call?(result_type, method : String, params = nil)
-      request = Request(typeof(params)).new(next_id, method, params)
+      request = Request.new(next_id, method, params)
       _send_message(request.id, request.to_json)
 
       message_data = recv_message(request.id)
@@ -128,20 +128,20 @@ module JsonRpc
 
     # Sends a notification to *method* with *params* to the remote end.
     def notify(method : String, params = nil)
-      request = Request(typeof(params)).new(nil, method, params)
+      request = Request.new(nil, method, params)
       _send_message(nil, request.to_json)
     end
 
     # Sends a notification to the remote end, that is already serialized.
     # Useful to send a notification to many clients in bulk.
     #
-    # Use `Request(T)#to_json` for easy construction of a message.
+    # Use `Request#to_json` for easy construction of a message.
     def notify_raw(message : String)
       _send_message(nil, message)
     end
 
     # Called by `Client` implementations to invoke a local method.
-    def invoke_from_remote(request : Request(JSON::Any), raw : String) : Nil
+    def invoke_from_remote(request : Request, raw : String) : Nil
       if @async_call
         spawn { process_local_invocation request, raw }
       else
