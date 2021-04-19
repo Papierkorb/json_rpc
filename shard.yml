@@ -1,7 +1,7 @@
 name: json_rpc
 description: A JSON-RPC client and server library
 version: 0.1.1
-crystal: ">= 0.35, < 2"
+crystal: ">= 0.35.1, < 2.0.0"
 license: MIT
 
 authors:
