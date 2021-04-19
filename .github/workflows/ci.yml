@@ -1,0 +1,23 @@
+name: CI
+on: [push, pull_request, workflow_dispatch]
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {os: ubuntu-latest, crystal: latest}
+          - {os: ubuntu-latest, crystal: nightly}
+          - {os: ubuntu-latest, crystal: 1.0.0}
+          - {os: ubuntu-latest, crystal: 0.36.1}
+          - {os: ubuntu-latest, crystal: 0.36.0}
+          - {os: ubuntu-latest, crystal: 0.35.1}
+    runs-on: ${{matrix.os}}
+    steps:
+      - uses: oprypin/install-crystal@v1
+        with:
+          crystal: ${{matrix.crystal}}
+      - uses: actions/checkout@v2
+      - run: shards install --ignore-crystal-version
+      - run: crystal spec
+      - run: crystal tool format --check
