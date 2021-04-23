@@ -15,9 +15,9 @@ module JsonRpc
     # If *run* is `true`, the client will start accepting messages right away.
     # If you choose to pass `false`, then make sure to call `#run` some time
     # afterwards manually, even if you're only calling remote methods.
-    def initialize(@socket, @remote_address, run = true)
+    def initialize(@socket, @remote_address, run : Bool = true)
       socket.on_message { |document| process_document(document) }
-      socker.on_close { close rescue nil }
+      socket.on_close { close rescue nil }
       self.run if run
     end
 
@@ -31,7 +31,7 @@ module JsonRpc
     end
 
     # Interface for `JsonRpc::Client`
-    def send_message(_id, message_data : String)
+    protected def send_message(_id, message_data : String)
       socket.send(message_data)
       nil
     end
