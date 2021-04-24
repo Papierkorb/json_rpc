@@ -11,7 +11,7 @@ module JsonRpc
 
     getter socket : HTTP::WebSocket
 
-    # Creates a WebSocket client from `HTTP::WebSocket`*.
+    # Creates a `WebSocketClient` from a `HTTP::WebSocket`.
     # If *run* is `true`, the client will start accepting messages right away.
     # If you choose to pass `false`, then make sure to call `#run` some time
     # afterwards manually, even if you're only calling remote methods.
@@ -21,8 +21,8 @@ module JsonRpc
       self.run if run
     end
 
-    # Starts the WebSocket read-loop in a background fiber.
-    # Make sure to onlyicall this method once, and only if you passed `false`
+    # Starts the `HTTP::WebSocket` read-loop in a background fiber.
+    # Make sure to only call this method once, and only if you passed `false`
     # for *run* to the constructor.
     #
     # If you did not do anything fancy, don't call this method.
