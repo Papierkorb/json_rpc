@@ -26,7 +26,7 @@ module JsonRpc
 
     @buffer_size : Int32 = 0
 
-    private getter buffer : Bytes { Bytes.new(BUFFER_SIZE) }
+    private getter buffer = Bytes.new(BUFFER_SIZE)
 
     # Constructs a reader with backing device *io*
     def initialize(@io : IO)
