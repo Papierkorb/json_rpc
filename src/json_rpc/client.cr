@@ -31,7 +31,7 @@ module JsonRpc
     # Set to `nil` to disable the flood-protection.
     property flood_messages : Int32? = 6000
 
-    @flood_time_end : Time = Time.now
+    @flood_time_end : Time = Time.local
     @flood_count : Int32 = 0
 
     # Total count of messages sent.
@@ -48,7 +48,7 @@ module JsonRpc
     # Emitted when the remote end has called a local method, but the handler
     # (Set through `#on_call`) raised an exception which is not a
     # `LocalCallError`.
-    Cute.signal fatal_local_error(request : Request(JSON::Any), raw : String, error : Exception)
+    Cute.signal fatal_local_error(request : Request, raw : String, error : Exception)
 
     # Emitted when the remote end sent something the implementation was not able
     # to handle.  Usually happens when receiving garbage.
@@ -87,9 +87,6 @@ module JsonRpc
 
     # Calls a remote *method* with optional *params*, returning a *result_type*.
     #
-    # Note: Right now, you have to pass `JsonRpc::Response(YourType)` for
-    # *result_type*, not just `YourType` !
-    #
     # ## Error behaviour
     #
     # On success the result of the invocation is returned.  If however the
@@ -109,23 +106,18 @@ module JsonRpc
     # `RemoteCallError` is **returned**. Otherwise, the **nilable** result is
     # returned.
     def call?(result_type, method : String, params = nil)
-      response = call_impl(result_type, method, params)
-
-      if err = response.error
-        RemoteCallError.new("Failed to call #{method}", err)
-      else
-        response.result
-      end
-    end
-
-    private def call_impl(result_type, method, params)
-      request = Request(typeof(params)).new(next_id, method, params)
+      request = Request.new(next_id, method, params)
       _send_message(request.id, request.to_json)
 
       message_data = recv_message(request.id)
       raise Error.new("Failed to call #{method}") if message_data.nil?
 
-      result_type.from_json message_data
+      response = Response.from_json(message_data)
+      if err = response.error
+        RemoteCallError.new("Failed to call #{method}", err)
+      else
+        response.result.try { |raw| result_type.from_json(raw) }
+      end
     end
 
     # Handler which is called whenever a call is received from the
@@ -136,22 +128,22 @@ module JsonRpc
 
     # Sends a notification to *method* with *params* to the remote end.
     def notify(method : String, params = nil)
-      request = Request(typeof(params)).new(nil, method, params)
+      request = Request.new(nil, method, params)
       _send_message(nil, request.to_json)
     end
 
     # Sends a notification to the remote end, that is already serialized.
     # Useful to send a notification to many clients in bulk.
     #
-    # Use `Request(T)#to_json` for easy construction of a message.
+    # Use `Request#to_json` for easy construction of a message.
     def notify_raw(message : String)
       _send_message(nil, message)
     end
 
     # Called by `Client` implementations to invoke a local method.
-    def invoke_from_remote(request : Request(JSON::Any), raw : String) : Nil
+    def invoke_from_remote(request : Request, raw : String) : Nil
       if @async_call
-        spawn{ process_local_invocation request, raw }
+        spawn { process_local_invocation request, raw }
       else
         process_local_invocation request, raw
       end
@@ -173,14 +165,12 @@ module JsonRpc
       result = @handler.handle_rpc_call(self, request, raw)
 
       case result
-      when Response then result
+      when Response        then result
       when DelayedResponse then nil
-      else request.respond(result)
+      else                      request.respond(result)
       end
-
     rescue err : LocalCallError
       request.respond(err)
-
     rescue err
       fatal_local_error.emit request, raw, err
       request.respond(LocalCallError.new(-32603, "Internal Server Error"))
@@ -202,7 +192,7 @@ module JsonRpc
       flood_messages = @flood_messages
       return true if flood_messages.nil?
 
-      now = Time.now
+      now = Time.local
       if now > @flood_time_end
         # Last message was received a long time ago, reset flood protection.
         @flood_time_end = now + @flood_time_span

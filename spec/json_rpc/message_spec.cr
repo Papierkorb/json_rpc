@@ -4,7 +4,7 @@ describe JsonRpc::Message do
   describe "#response?" do
     context "for a request" do
       it "returns false" do
-        JsonRpc::Message.from_json(%<{"id": 1, "method": \"foo\", "params": []}>).response?.should eq false
+        JsonRpc::Message.from_json(%<{"id": 1, "method": "foo", "params": []}>).response?.should eq false
       end
     end
 
@@ -16,7 +16,7 @@ describe JsonRpc::Message do
 
     context "for a notification" do
       it "returns false" do
-        JsonRpc::Message.from_json(%<{"id": null, "method": \"foo\", "params": []}>).response?.should eq false
+        JsonRpc::Message.from_json(%<{"id": null, "method": "foo", "params": []}>).response?.should eq false
       end
     end
   end

@@ -18,7 +18,7 @@ http_client.basic_auth username, password
 client = JsonRpc::HttpClient.new http_client
 
 # Get current balance!
-balance = client.call(JsonRpc::Response(Float64), "getbalance")
-#          The result will be a Float64 ^^^^^^^
+balance = client.call(Float64, "getbalance")
+#                     ^^^^^^^ The result will be a Float64
 
 puts "Current balance: #{balance}"

@@ -1,20 +1,14 @@
+require "json"
+
 module JsonRpc
   # Used by `Client` implementations to guess if the received message is a
   # request or a response.
-  class Message
-    JSON.mapping({
-      id: {
-        type: IdType,
-        nilable: true,
-      },
-      method: {
-        type: String,
-        nilable: true,
-      },
-    })
+  struct Message
+    include JSON::Serializable
+    getter id : IdType?
+    getter method : String?
 
-    def response?
-      @method.nil?
-    end
+    @[JSON::Field(ignore: true)]
+    getter? response : Bool { method.nil? }
   end
 end

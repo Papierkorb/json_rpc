@@ -1,4 +1,4 @@
-# JSON-RPC Client and Server [![Build Status](https://travis-ci.org/Papierkorb/json_rpc.svg?branch=master)](https://travis-ci.org/Papierkorb/json_rpc)
+# JSON-RPC Client and Server [![CI](https://github.com/Papierkorb/json_rpc/actions/workflows/ci.yml/badge.svg)](https://github.com/Papierkorb/json_rpc/actions/workflows/ci.yml)
 
 Use and provide services using JSON-RPC!
 
@@ -7,7 +7,7 @@ Use and provide services using JSON-RPC!
 | Transport | Client  | Server  |
 |-----------|---------|---------|
 | HTTP      | Yes     | Planned |
-| Websocket | Planned | Planned |
+| Websocket | Yes     | Planned |
 | TCP       | Yes     | Yes     |
 
 Custom transports can be easily created.  Have a look at `JsonRpc::TcpClient`.
@@ -38,7 +38,7 @@ http_client.basic_auth "rpc_user", "rpc_password"
 client = JsonRpc::HttpClient.new http_client
 
 # Check your balance!
-pp client.call(JsonRpc::Response(Float64), "getbalance")
+pp client.call(Float64, "getbalance")
 ```
 
 [Source](https://github.com/Papierkorb/json_rpc/tree/master/samples/http_client.cr)

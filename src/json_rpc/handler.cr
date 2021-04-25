@@ -8,7 +8,7 @@ module JsonRpc
     # Raising any other error will be caught in `Client#invoke_locally`.
     #
     # The default implementation always responds with an unknown method error.
-    def handle_rpc_call(client : JsonRpc::Client, request : JsonRpc::Request(JSON::Any), raw : String)
+    def handle_rpc_call(client : JsonRpc::Client, request : JsonRpc::Request, raw : String)
       request.respond LocalCallError.new(-32601, "Unknown method")
     end
   end

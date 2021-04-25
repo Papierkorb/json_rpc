@@ -11,5 +11,5 @@ socket = TCPSocket.new("localhost", 1234)
 client = JsonRpc::TcpClient.new socket # Turn it into a JSON-RPC connection
 
 puts "Calling ping method..."
-result = client.call JsonRpc::Response(String), "ping", [ Time.now ]
+result = client.call String, "ping", [Time.now]
 puts "Result: #{result.inspect}"

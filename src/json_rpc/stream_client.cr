@@ -1,6 +1,10 @@
+require "./stream"
+
 module JsonRpc
   # Implements JSON-RPC over a persistant data stream.
   class StreamClient < Client
+    include Stream
+
     SIZE_LIMIT = 2 * 1024 * 1024 # 2MiB
 
     getter stream : DocumentStream
@@ -11,8 +15,6 @@ module JsonRpc
     # Maximum request size limit.  If a client exceeds this, it will be
     # disconnected.  Defaults to `SIZE_LIMIT`
     property request_size_limit : Int32 = SIZE_LIMIT
-
-    @channels = {} of IdType => Channel(String)
 
     # Creates a streaming client from *stream*.  If *run* is `true`, the client will
     # start accepting messages right away.  If you choose to pass `false`, then
@@ -34,20 +36,13 @@ module JsonRpc
     #
     # If you did not do anything fancy, don't call this method.
     def run
-      spawn{ read_loop }
+      spawn { read_loop }
     end
 
-    # Interface for `Client`
+    # Interface for `JsonRpc::Client`
     def send_message(_id, message_data)
       @stream.send_document message_data
       nil
-    end
-
-    # ditto
-    def recv_message(id)
-      channel = Channel(String).new
-      @channels[id] = channel
-      channel.receive
     end
 
     # Runs the read-loop in the current fiber, blocking it.  See `#run`.
@@ -55,20 +50,6 @@ module JsonRpc
       while @running
         read_once
       end
-    end
-
-    # Processes *document* as if it was sent by the remote end.
-    def process_document(document : String)
-      return unless count_incoming_message
-      msg = Message.from_json document
-
-      if msg.response?
-        process_response(document)
-      else
-        process_request(document)
-      end
-    rescue error
-      fatal_remote_error.emit document, error
     end
 
     # Waits for exactly one document to arrive and processes it.
@@ -79,22 +60,6 @@ module JsonRpc
       close
     rescue error
       fatal_remote_error.emit doc, error
-    end
-
-    private def process_response(line)
-      response = EmptyResponse.from_json line
-      channel = @channels.delete(response.id)
-
-      if channel
-        channel.send(line)
-      else
-        raise "Received response with unknown id=#{response.id.inspect}"
-      end
-    end
-
-    private def process_request(line)
-      request = Request(JSON::Any).from_json line
-      invoke_from_remote request, line
     end
 
     def inspect(io)

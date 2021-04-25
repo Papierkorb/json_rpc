@@ -15,17 +15,17 @@ module JsonRpc
 
     # Sends an error response.
     def respond(failure : LocalCallError)
-      send Response(Nil).new(@id, nil, failure.object)
+      send Response.new(@id, nil, failure.object)
     end
 
     # Sends an error response.
     def error(code : Int32, message : String, data : JSON::Any? = nil)
-      send Response(Nil).new(@id, nil, LocalCallError.error_object(code, public_message, data))
+      send Response.new(@id, nil, LocalCallError.error_object(code, public_message, data))
     end
 
     # Sends a successful response based on *result*.
     def respond(result)
-      send Response(typeof(result)).new(@id, result, nil)
+      send Response.new(@id, result, nil)
     end
 
     # Sends a *response* to the backing `#client`.

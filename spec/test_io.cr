@@ -1,6 +1,4 @@
-class TestIo
-  include IO
-
+class TestIo < IO
   getter sent = [] of String
 
   def initialize(choreography : Array(String))
@@ -14,7 +12,7 @@ class TestIo
     current = @choreography.first?
     return 0 if current.nil?
 
-    count = { buffer.size, current.size }.min
+    count = {buffer.size, current.size}.min
     buffer.copy_from current[0, count]
 
     if (current + count).size < 1
@@ -26,7 +24,7 @@ class TestIo
     count
   end
 
-  def write(buffer : Bytes)
+  def write(buffer : Bytes) : Nil
     @sent << String.new(buffer)
     nil
   end

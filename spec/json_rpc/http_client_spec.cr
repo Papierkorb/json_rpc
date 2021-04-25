@@ -25,13 +25,13 @@ describe JsonRpc::HttpClient do
       client = JsonRpc::HttpClient.new mock, "/json-rpc"
 
       mock.add_response 200, %<{"id":1, "result":"Okay"}>
-      result = client.call JsonRpc::Response(String), "foo"
+      result = client.call String, "foo"
       result.should eq "Okay"
 
       request = mock.requests.shift
       request.method.should eq "POST"
       request.path.should eq "/json-rpc"
-      request.body.try(&.gets_to_end).should eq JsonRpc::Request(String).new(1i64, "foo", nil).to_json
+      request.body.try(&.gets_to_end).should eq JsonRpc::Request.new(1i64, "foo", nil).to_json
     end
 
     context "on non-200 response code" do
@@ -42,7 +42,7 @@ describe JsonRpc::HttpClient do
         mock.add_response 404, %<{"id":1, "result":"Okay"}>
 
         expect_raises(JsonRpc::ConnectionError) do
-          client.call JsonRpc::Response(String), "foo"
+          client.call String, "foo"
         end
       end
     end
